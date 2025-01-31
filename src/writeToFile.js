@@ -1,5 +1,4 @@
 const fs = require('fs').promises;
-const path = require('path');
 
 function writeToFile(filePath, content) {
   return fs
