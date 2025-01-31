@@ -1,5 +1,5 @@
 {
-  "name": "await async errors",
+  "name": "await-async-errors",
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
