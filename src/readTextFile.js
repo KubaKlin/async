@@ -1,14 +1,14 @@
-const fs = require('fs').promises;
+const filesystem = require('fs').promises;
 
 function readTextFile(path) {
-  return fs
+  return filesystem
     .readFile(path, 'utf8')
     .then((contents) => contents)
     .catch((error) => {
       if (error.code === 'ENOENT') {
         return null;
       } else {
-        throw error;
+        throw new Error('something went wrong');
       }
     });
 }

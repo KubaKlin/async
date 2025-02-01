@@ -4,7 +4,7 @@ async function writeToFileAsync(filePath, content) {
   try {
     await fs.writeFile(filePath, content);
     const stats = await fs.stat(filePath);
-    return stats.size / 1024; // Convert size to kilobytes
+    return stats.size / 1024;
   } catch (error) {
     return null;
   }

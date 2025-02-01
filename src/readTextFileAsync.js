@@ -2,13 +2,12 @@ const fs = require('fs').promises;
 
 async function readTextFileAsync(path) {
   try {
-    const contents = await fs.readFile(path, 'utf8');
-    return contents;
+    return await fs.readFile(path, 'utf8');
   } catch (error) {
     if (error.code === 'ENOENT') {
       return null;
     } else {
-      throw error;
+      throw new Error('something went wrong');
     }
   }
 }
