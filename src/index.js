@@ -103,11 +103,9 @@ async function getAllPostsFromUserAsync(userId) {
     const userPosts = posts.filter((post) => post.userId === userId);
     if (userPosts.length > 0) {
       return userPosts;
-    } else {
-      throw new Error(`No posts found for user with ID ${userId}`);
     }
-  } catch (error) {
-    throw error;
+  } catch {
+    throw new Error(`No posts found for user with ID ${userId}`);
   }
 }
 
@@ -125,8 +123,16 @@ function getAlbumsWithPhotos() {
       response.json(),
     ),
   ]).then(([albums, photos]) => {
+    const photosByAlbum = photos.reduce((accumulator, photo) => {
+      if (!accumulator[photo.albumId]) {
+        accumulator[photo.albumId] = [];
+      }
+      accumulator[photo.albumId].push(photo);
+      return accumulator;
+    }, {});
+
     return albums.map((album) => {
-      album.photos = photos.filter((photo) => photo.albumId === album.id);
+      album.photos = photosByAlbum[album.id] || [];
       return album;
     });
   });
@@ -145,8 +151,16 @@ async function getAlbumsWithPhotosAsync() {
   const albums = await albumsResponse.json();
   const photos = await photosResponse.json();
 
+  const photosByAlbum = photos.reduce((accumulator, photo) => {
+    if (!accumulator[photo.albumId]) {
+      accumulator[photo.albumId] = [];
+    }
+    accumulator[photo.albumId].push(photo);
+    return accumulator;
+  }, {});
+
   return albums.map((album) => {
-    album.photos = photos.filter((photo) => photo.albumId === album.id);
+    album.photos = photosByAlbum[album.id] || [];
     return album;
   });
 }
@@ -168,15 +182,25 @@ function getUsersWithPostsAndComments() {
       response.json(),
     ),
   ]).then(([users, posts, comments]) => {
+    const commentsByPostId = comments.reduce((map, comment) => {
+      if (!map[comment.postId]) {
+        map[comment.postId] = [];
+      }
+      map[comment.postId].push(comment);
+      return map;
+    }, {});
+
+    const postsByUserId = posts.reduce((map, post) => {
+      if (!map[post.userId]) {
+        map[post.userId] = [];
+      }
+      post.comments = commentsByPostId[post.id] || [];
+      map[post.userId].push(post);
+      return map;
+    }, {});
+
     return users.map((user) => {
-      user.posts = posts
-        .filter((post) => post.userId === user.id)
-        .map((post) => {
-          post.comments = comments.filter(
-            (comment) => comment.postId === post.id,
-          );
-          return post;
-        });
+      user.posts = postsByUserId[user.id] || [];
       return user;
     });
   });
@@ -191,19 +215,31 @@ async function getUsersWithPostsAndCommentsAsync() {
     fetch('https://jsonplaceholder.typicode.com/comments'),
   ]);
 
-  const users = await usersResponse.json();
-  const posts = await postsResponse.json();
-  const comments = await commentsResponse.json();
+  const [users, posts, comments] = await Promise.all([
+    usersResponse.json(),
+    postsResponse.json(),
+    commentsResponse.json(),
+  ]);
+
+  const commentsByPostId = comments.reduce((accumulator, comment) => {
+    if (!accumulator[comment.postId]) {
+      accumulator[comment.postId] = [];
+    }
+    accumulator[comment.postId].push(comment);
+    return accumulator;
+  }, {});
+
+  const postsByUserId = posts.reduce((accumulator, post) => {
+    if (!accumulator[post.userId]) {
+      accumulator[post.userId] = [];
+    }
+    post.comments = commentsByPostId[post.id] || [];
+    accumulator[post.userId].push(post);
+    return accumulator;
+  }, {});
 
   return users.map((user) => {
-    user.posts = posts
-      .filter((post) => post.userId === user.id)
-      .map((post) => {
-        post.comments = comments.filter(
-          (comment) => comment.postId === post.id,
-        );
-        return post;
-      });
+    user.posts = postsByUserId[user.id] || [];
     return user;
   });
 }
