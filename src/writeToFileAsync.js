@@ -5,12 +5,12 @@ async function writeToFileAsync(filePath, content) {
     await fs.writeFile(filePath, content);
     const stats = await fs.stat(filePath);
     return stats.size / 1024;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
-(async () => {
+async function writeHelloWorldExample() {
   const size = await writeToFileAsync(
     'example.txt',
     'Hello, World! \nasync file content included',
@@ -20,4 +20,6 @@ async function writeToFileAsync(filePath, content) {
   } else {
     console.log('File saving failed.');
   }
-})();
+}
+
+writeHelloWorldExample();

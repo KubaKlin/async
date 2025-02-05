@@ -6,13 +6,12 @@ async function readTextFileAsync(path) {
   } catch (error) {
     if (error.code === 'ENOENT') {
       return null;
-    } else {
-      throw new Error('something went wrong');
     }
+    throw new Error('something went wrong');
   }
 }
 
-(async () => {
+async function readExampleFile() {
   try {
     const contents = await readTextFileAsync('./example.txt');
     if (contents !== null) {
@@ -23,4 +22,6 @@ async function readTextFileAsync(path) {
   } catch (error) {
     console.error('Error reading file:', error);
   }
-})();
+}
+
+readExampleFile();
