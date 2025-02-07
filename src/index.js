@@ -105,7 +105,7 @@ async function getAllPostsFromUserAsync(userId) {
       return userPosts;
     }
   } catch {
-    throw new Error(`No posts found for user with ID ${userId}`);
+    console.log(`No posts found for user with ID ${userId}`);
   }
 }
 
@@ -123,12 +123,12 @@ function getAlbumsWithPhotos() {
       response.json(),
     ),
   ]).then(([albums, photos]) => {
-    const photosByAlbum = photos.reduce((accumulator, photo) => {
-      if (!accumulator[photo.albumId]) {
-        accumulator[photo.albumId] = [];
+    const photosByAlbum = photos.reduce((albumPhotos, photo) => {
+      if (!albumPhotos[photo.albumId]) {
+        albumPhotos[photo.albumId] = [];
       }
-      accumulator[photo.albumId].push(photo);
-      return accumulator;
+      albumPhotos[photo.albumId].push(photo);
+      return albumPhotos;
     }, {});
 
     return albums.map((album) => {
@@ -151,12 +151,12 @@ async function getAlbumsWithPhotosAsync() {
   const albums = await albumsResponse.json();
   const photos = await photosResponse.json();
 
-  const photosByAlbum = photos.reduce((accumulator, photo) => {
-    if (!accumulator[photo.albumId]) {
-      accumulator[photo.albumId] = [];
+  const photosByAlbum = photos.reduce((albumPhotos, photo) => {
+    if (!albumPhotos[photo.albumId]) {
+      albumPhotos[photo.albumId] = [];
     }
-    accumulator[photo.albumId].push(photo);
-    return accumulator;
+    albumPhotos[photo.albumId].push(photo);
+    return albumPhotos;
   }, {});
 
   return albums.map((album) => {
@@ -221,21 +221,21 @@ async function getUsersWithPostsAndCommentsAsync() {
     commentsResponse.json(),
   ]);
 
-  const commentsByPostId = comments.reduce((accumulator, comment) => {
-    if (!accumulator[comment.postId]) {
-      accumulator[comment.postId] = [];
+  const commentsByPostId = comments.reduce((commentsByPost, comment) => {
+    if (!commentsByPost[comment.postId]) {
+      commentsByPost[comment.postId] = [];
     }
-    accumulator[comment.postId].push(comment);
-    return accumulator;
+    commentsByPost[comment.postId].push(comment);
+    return commentsByPost;
   }, {});
 
-  const postsByUserId = posts.reduce((accumulator, post) => {
-    if (!accumulator[post.userId]) {
-      accumulator[post.userId] = [];
+  const postsByUserId = posts.reduce((postsByUser, post) => {
+    if (!postsByUser[post.userId]) {
+      postsByUser[post.userId] = [];
     }
     post.comments = commentsByPostId[post.id] || [];
-    accumulator[post.userId].push(post);
-    return accumulator;
+    postsByUser[post.userId].push(post);
+    return postsByUser;
   }, {});
 
   return users.map((user) => {
