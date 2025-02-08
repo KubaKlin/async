@@ -103,9 +103,11 @@ async function getAllPostsFromUserAsync(userId) {
     const userPosts = posts.filter((post) => post.userId === userId);
     if (userPosts.length > 0) {
       return userPosts;
+    } else {
+      throw new Error(`No posts found for user with ID ${userId}`);
     }
-  } catch {
-    console.log(`No posts found for user with ID ${userId}`);
+  } catch (error) {
+    throw error;
   }
 }
 
