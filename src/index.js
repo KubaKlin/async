@@ -77,38 +77,29 @@ getUserNameAsync(1).then((name) => console.log(name));
 
 // 5
 function getAllPostsFromUser(userId) {
-  return new Promise((resolve, reject) => {
-    fetch('https://jsonplaceholder.typicode.com/posts')
-      .then((response) => response.json())
-      .then((posts) => {
-        const userPosts = posts.filter((post) => post.userId === userId);
-        if (userPosts.length > 0) {
-          resolve(userPosts);
-        } else {
-          reject(new Error(`No posts found for user with ID ${userId}`));
-        }
-      })
-      .catch((error) => reject(error));
-  });
+  return fetch('https://jsonplaceholder.typicode.com/posts')
+    .then((response) => response.json())
+    .then((posts) => {
+      const userPosts = posts.filter((post) => post.userId === userId);
+      if (userPosts.length > 0) {
+        return userPosts;
+      }
+      throw new Error(`No posts found for user with ID ${userId}`);
+    });
 }
 
-getAllPostsFromUser(5)
+getAllPostsFromUser(4)
   .then((posts) => console.log(posts))
   .catch((error) => console.error(error));
 
 async function getAllPostsFromUserAsync(userId) {
-  try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-    const posts = await response.json();
-    const userPosts = posts.filter((post) => post.userId === userId);
-    if (userPosts.length > 0) {
-      return userPosts;
-    } else {
-      throw new Error(`No posts found for user with ID ${userId}`);
-    }
-  } catch (error) {
-    throw error;
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+  const posts = await response.json();
+  const userPosts = posts.filter((post) => post.userId === userId);
+  if (userPosts.length > 0) {
+    return userPosts;
   }
+  throw new Error(`No posts found for user with ID ${userId}`);
 }
 
 getAllPostsFromUserAsync(1)
